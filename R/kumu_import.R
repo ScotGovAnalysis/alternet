@@ -1,5 +1,5 @@
-import_from_kumu_json = function() {
-  json_data = jsonlite::fromJSON("inst/extdata/kumu-davidmillson-softor.json")
+import_from_kumu_json = function(filepath) {
+  json_data = jsonlite::fromJSON(filepath)
 
   nodes = json_data$elements %>%
     tidyr::unnest(cols = c(attributes)) %>%
