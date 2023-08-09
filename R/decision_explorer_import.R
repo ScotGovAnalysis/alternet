@@ -1,5 +1,5 @@
-import_from_decision_explorer_xml = function() {
-  xml_data = xml2::read_xml("inst/extdata/parole.mdx")
+import_from_decision_explorer_xml = function(filepath) {
+  xml_data = xml2::read_xml(filepath)
 
   nodes = xml_data %>%
     get_node_info() %>%
