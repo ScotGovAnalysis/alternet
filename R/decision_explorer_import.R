@@ -1,28 +1,37 @@
-import_from_decision_explorer_xml = function(filepath) {
-  xml_data = xml2::read_xml(filepath)
+#' Imports a Decision Explorer xml-formatted model as a network, converting to a standardised R format
+#'
+#' @param filepath The filepath of the Decision Explorer xml file
+#' @param scaling Factor to scale the coordinates down by
+
+#' @return A named list with a tibble containing information about nodes, and a tibble containing information about edges
+#' @examples import_from_decision_explorer_xml("example_network.mdx", scaling = 5)
+#' @export
+import_from_decision_explorer_xml = function(filepath, scaling = 5) {
+  xml_data = xml2::read_xml(filepath) # read the data into an xml document
 
   nodes = xml_data %>%
-    get_node_info() %>%
-    dplyr::mutate(name = stringr::str_c("elem-", refno)) %>%
-    dplyr::mutate(x = multiply_chr(x, 1/2.5),
-                  y = multiply_chr(y, -1/2.5))
+    get_node_info_de() %>%
+    dplyr::mutate(id = stringr::str_c("elem-", refno)) %>% # create a unique id for the node, based on the refno
+    # rescale coordinates to keep layout nice
+    dplyr::mutate(x = multiply_chr(x, 1/scaling),
+                  y = multiply_chr(y, -1/scaling)) # also reverse y direction as decision explorer has origin in bottom left rather than top left
 
   edges = xml_data %>%
-    get_edge_info() %>%
-    dplyr::left_join(nodes, by = c("from" = "refno")) %>%
-    dplyr::select(polarity, from = name, to) %>%
-    dplyr::left_join(nodes, by = c("to" = "refno")) %>%
-    dplyr::select(polarity, from, to = name) %>%
-    dplyr::mutate(refno = 1:nrow(.),
-                  name = stringr::str_c("conn-", refno))
+    get_edge_info_de() %>%
+    dplyr::mutate_at(c("from", "to"), ~stringr::str_c("elem-", .)) %>% # specifying from and to nodes by id instead of refno
+    dplyr::mutate(refno = 1:nrow(.),# assign a unique refno for the edge
+                  id = stringr::str_c("conn-", refno)) # create a unique id for the edge, based on the refno
 
-  list(nodes = nodes, edges = edges)
+  list(nodes = nodes, edges = edges) # return the node and edge information
 }
 
+#' Extracts node information from Decision Explorer xml (as created by xml2::read_xml())
+#'
+#' @param raw_xml xml document read from the model file
 
-
-#' @NoRd
-get_node_info = function(raw_xml) {
+#' @return A tibble containing information about nodes
+#' @examples xml2::read_xml("example_network.mdx") %>% get_node_info_de()
+get_node_info_de = function(raw_xml) {
   nodes_xml = xml2::xml_find_all(raw_xml, ".//concept") # Navigate to the node elements
 
   layout_xml = xml2::xml_find_all(raw_xml, ".//position") # Navigate to the position elements
@@ -39,8 +48,13 @@ get_node_info = function(raw_xml) {
     dplyr::left_join(layout, by = "refno")
 }
 
-#' @NoRd
-get_edge_info = function(raw_xml) {
+#' Extracts edge information from Decision Explorer xml (as created by xml2::read_xml())
+#'
+#' @param raw_xml xml document read from the model file
+
+#' @return A tibble containing information about edges
+#' @examples xml2::read_xml("example_network.mdx") %>% get_edge_info_de()
+get_edge_info_de = function(raw_xml) {
   edges_xml = xml2::xml_find_all(raw_xml, ".//link") # Navigate to the edge elements
 
   tibble::tibble(from = xml2::xml_attr(edges_xml, "linkfrom"),
