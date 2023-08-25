@@ -20,5 +20,5 @@ An xml document formatted to be imported into Decision Explorer
 Exports a network as an xml-formatted Decision Explorer model
 }
 \examples{
-export_from_decision_explorer_xml(example_network, file = "example_network.mdx", scaling = 5)
+export_to_decision_explorer(example_network, file = "example_network.mdx", scaling = 5)
 }

@@ -13,22 +13,21 @@ import_from_kumu_json = function(filepath, scaling = 2) {
     tidyr::unnest(cols = c(attributes)) %>% # tidy the format of the columns
     dplyr::rename(element = `_id`, refno = id) %>%
     dplyr::left_join(json_data$maps$elements[[1]] %>% #join with map layout information
-                       tidyr::unnest(cols = c(position, style)),
+                       tidyr::unnest(cols = any_of(c("position", "style"))),
                      by = "element") %>%
     dplyr::rename(name = element,
                   type = `element type`,
-                  id = `_id`,
-                  font_colour = fontColor,
-                  font_weight = fontWeight) %>%
+                  id = `_id`) %>%
     # rescale coordinates to keep layout nice
-    dplyr::mutate(x = multiply_chr(x, 1/scaling),
-                  y = multiply_chr(y, 1/scaling))
+    dplyr::mutate(x = x / scaling,
+                  y = y / scaling)
 
-  styles = nodes %>%
-    dplyr::distinct(type, font_colour, font_weight) # identify distinct groups by style
+  # handling styles is something to tackle in future
+  # styles = nodes %>%
+  #   dplyr::distinct(type, font_colour, font_weight) # identify distinct groups by style
 
   nodes = nodes %>%
-    dplyr::select(-pinned, -font_colour, -font_weight)
+    dplyr::select(-any_of(c("pinned", "fontColor", "fontWeight")))
 
   edges = json_data$connections %>% # select the "connections" (or edges)
     tidyr::unnest(cols = c(attributes)) %>% # tidy the format of the columns
@@ -40,10 +39,10 @@ import_from_kumu_json = function(filepath, scaling = 2) {
                   polarity = `connection type`,
                   from,
                   to,
-                  id = `_id`,
-                  curvature) %>%
+                  id = `_id`) %>%
     dplyr::mutate(polarity = polarity %>%
-                    dplyr::recode(`+` = "positive", `-` = "negative")) # format polarity as "positive" and "negative" instead of "+" and "-"
+                    dplyr::recode(`+` = "positive", `-` = "negative"), # format polarity as "positive" and "negative" instead of "+" and "-"
+                  curvature = as.double(NA)) # handling curvature is something to tackle in future
 
-  list(nodes = nodes, edges = edges, styles = styles) # return the node, edge and style information
+  list(nodes = nodes, edges = edges) # return the node, edge and style information
 }
