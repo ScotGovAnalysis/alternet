@@ -5,7 +5,7 @@
 #' @param scaling Factor to scale the coordinates up by
 
 #' @return An xml document formatted to be imported into Decision Explorer
-#' @examples export_from_decision_explorer_xml(example_network, file = "example_network.mdx", scaling = 5)
+#' @examples export_to_decision_explorer(example_network, file = "example_network.mdx", scaling = 5)
 #' @export
 export_to_decision_explorer = function(network, filepath = NULL, scaling = 5) {
   nodes = network$nodes %>%
