@@ -18,5 +18,5 @@ A named list with a tibble containing information about nodes, and a tibble cont
 Imports a Decision Explorer xml-formatted model as a network, converting to a standardised R format
 }
 \examples{
-import_from_decision_explorer_xml("example_network.mdx", scaling = 5)
+import_from_decision_explorer_xml("inst/extdata/example_network.mdx", scaling = 5)
 }
