@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model>
+  <info/>
+  <concepts>
+    <concept id="1" style="Action">Example node 1</concept>
+    <concept id="2" style="Goal">Example node 2</concept>
+    <concept id="3" style="NA">Example node 3</concept>
+  </concepts>
+  <links>
+    <link sign="positive" linkto="2" linkfrom="1"/>
+    <link sign="positive" linkto="3" linkfrom="2"/>
+    <link sign="negative" linkto="1" linkfrom="3"/>
+  </links>
+  <views>
+    <mapview>
+      <position x="0" y="-2000" concept="1"/>
+      <position x="2500" y="-2000" concept="2"/>
+      <position x="1250" y="-500" concept="3"/>
+    </mapview>
+  </views>
+</model>

@@ -15,11 +15,7 @@ export_to_decision_explorer = function(network, filepath = NULL, scaling = 5) {
 
   edges = network$edges %>%
     # switch the from and to columns in edges to be based on refno rather than name
-    dplyr::select(-name, -refno) %>%
-    dplyr::left_join(nodes, by = c("from" = "name")) %>%
-    dplyr::select(polarity, from = refno, to) %>%
-    dplyr::left_join(nodes, by = c("to" = "name")) %>%
-    dplyr::select(polarity, from, to = refno)
+    recode_by_dict(c("from", "to"), "name", "refno", nodes)
 
   styles = network$styles
 

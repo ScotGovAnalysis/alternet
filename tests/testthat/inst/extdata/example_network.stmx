@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmile xmlns:isee="http://iseesystems.com/XMILE" xlmns="http://docs.oasis-open.org/xmile/ns/XMILE/v1.0">
+  <isee:prefs layer="cld"/>
+  <model>
+    <variables>
+      <aux name="Example node 1"/>
+      <aux name="Example node 2"/>
+      <aux name="Example node 3"/>
+    </variables>
+    <views>
+      <view isee:converter_size="name_only">
+        <aux x="200" y="400" name="Example node 1"/>
+        <aux x="700" y="400" name="Example node 2"/>
+        <aux x="450" y="100" name="Example node 3"/>
+        <connector uid="1" polarity="+" angle="0">
+          <from>Example node 1</from>
+          <to>Example node 2</to>
+        </connector>
+        <connector uid="2" polarity="+" angle="129.806">
+          <from>Example node 2</from>
+          <to>Example node 3</to>
+        </connector>
+        <connector uid="3" polarity="-" angle="230.194">
+          <from>Example node 3</from>
+          <to>Example node 1</to>
+        </connector>
+      </view>
+    </views>
+  </model>
+</xmile>

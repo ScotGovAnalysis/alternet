@@ -48,6 +48,3 @@ po/*~
 # RStudio Connect folder
 rsconnect/
 .Rproj.user
-
-# folder for network data to test on
-inst/
