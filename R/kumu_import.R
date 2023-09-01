@@ -4,7 +4,7 @@
 #' @param scaling Factor to scale the coordinates down by
 
 #' @return A named list with a tibble containing information about nodes, and a tibble containing information about edges
-#' @examples import_from_kumu_json("example_network.json", scaling = 2)
+#' @examples import_from_kumu_json("inst/extdata/example_network.json", scaling = 2)
 #' @export
 import_from_kumu_json = function(filepath, scaling = 2) {
   json_data = jsonlite::fromJSON(filepath) # read the data into a list

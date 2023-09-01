@@ -4,7 +4,7 @@
 #' @param scaling Factor to scale the coordinates down by
 
 #' @return A named list with a tibble containing information about nodes, and a tibble containing information about edges
-#' @examples import_from_decision_explorer_xml("example_network.mdx", scaling = 5)
+#' @examples import_from_decision_explorer_xml("inst/extdata/example_network.mdx", scaling = 5)
 #' @export
 import_from_decision_explorer_xml = function(filepath, scaling = 5) {
   xml_data = xml2::read_xml(filepath) # read the data into an xml document

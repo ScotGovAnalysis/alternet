@@ -18,5 +18,5 @@ A named list with a tibble containing information about nodes, and a tibble cont
 Imports a Kumu json-formatted model as a network, converting to a standardised R format
 }
 \examples{
-import_from_kumu_json("example_network.json", scaling = 2)
+import_from_kumu_json("inst/extdata/example_network.json", scaling = 2)
 }
