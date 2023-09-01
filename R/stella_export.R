@@ -11,16 +11,19 @@ export_to_stella = function(network, filepath = NULL, translation = c(200,0)) {
   nodes = network$nodes %>%
     # rescale coordinates to keep layout nice
     dplyr::mutate(x = x + translation[1],
-                  y = y + translation[1])
+                  y = y + translation[2])
 
   edges = network$edges %>%
     dplyr::rename(uid = refno) %>%
     # switch the from and to columns in edges to be based on label rather than name
-    dplyr::left_join(nodes, by = c("from" = "name")) %>%
-    dplyr::select(uid, polarity, from = label, to, start_x = x, start_y = y) %>%
-    dplyr::left_join(nodes, by = c("to" = "name")) %>%
-    dplyr::mutate(angle = calculate_link_angle(start_x, x, start_y, y)) %>% #calculate initial angle for the connectors
-    dplyr::select(uid, polarity, angle, from, to = label)
+    recode_by_dict(c("from", "to"), "name", "label", nodes) %>%
+    # get the start and end coordinates for the link
+    dplyr::left_join(nodes %>% dplyr::select(label, x, y), by = c("from" = "label")) %>%
+    dplyr::rename(start_x = x, start_y = y) %>%
+    dplyr::left_join(nodes %>% dplyr::select(label, x, y), by = c("to" = "label")) %>%
+    dplyr::mutate(angle = calculate_link_angle(start_x, x, start_y, y), # calculate initial angle for the connectors
+                  polarity = polarity %>% dplyr::recode(positive = "+", negative = "-")) %>% # recode polarity
+    dplyr::select(uid, polarity, angle, from, to)
 
   styles = network$styles
 
@@ -49,6 +52,7 @@ export_to_stella = function(network, filepath = NULL, translation = c(200,0)) {
     xml2::xml_child("model") %>%
     xml2::xml_add_child("views") %>%
     xml2::xml_add_child("view", `isee:converter_size` = "name_only")
+
   # add the position of each node to the view
   for(i in 1:nrow(nodes)) {
     xml_doc %>%
@@ -68,6 +72,7 @@ export_to_stella = function(network, filepath = NULL, translation = c(200,0)) {
       xml2::xml_child("view") %>%
       xml2::xml_add_child("connector",
                           uid = edges$uid[i],
+                          polarity = edges$polarity[i],
                           angle = edges$angle[i]) %>%
       xml2::xml_add_child("from", edges$from[i]) %>%
       xml2::xml_add_sibling("to", edges$to[i])
