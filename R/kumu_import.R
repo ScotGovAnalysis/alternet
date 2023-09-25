@@ -20,7 +20,9 @@ import_from_kumu_json = function(filepath, scaling = 2) {
                   id = `_id`) %>%
     # rescale coordinates to keep layout nice
     dplyr::mutate(x = x / scaling,
-                  y = y / scaling)
+                  y = y / scaling,
+                  description = as.character(NA),
+                  tags = as.character(NA))
 
   # handling styles is something to tackle in future
   # styles = nodes %>%
@@ -42,7 +44,9 @@ import_from_kumu_json = function(filepath, scaling = 2) {
                   id = `_id`) %>%
     dplyr::mutate(polarity = polarity %>%
                     dplyr::recode(`+` = "positive", `-` = "negative"), # format polarity as "positive" and "negative" instead of "+" and "-"
-                  curvature = as.double(NA)) # handling curvature is something to tackle in future
+                  curvature = as.double(NA), # handling curvature is something to tackle in future
+                  description = as.character(NA),
+                  weight = 1)
 
   list(nodes = nodes, edges = edges) # return the node, edge and style information
 }

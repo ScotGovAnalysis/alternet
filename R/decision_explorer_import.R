@@ -16,7 +16,9 @@ import_from_decision_explorer_xml = function(filepath, scaling = 5) {
     # rescale coordinates to keep layout nice
     dplyr::mutate(x = x / scaling,
                   y = -y / scaling) %>%  # also reverse y direction as decision explorer has origin in bottom left rather than top left
-    dplyr::select(name, refno, label, type, id, x, y)
+    dplyr::select(name, refno, label, type, id, x, y) %>%
+    dplyr::mutate(description = as.character(NA),
+                  tags = as.character(NA))
 
   edges = xml_data %>%
     get_edge_info_de() %>%
@@ -24,8 +26,10 @@ import_from_decision_explorer_xml = function(filepath, scaling = 5) {
     dplyr::mutate(refno = 1:nrow(.),# assign a unique refno for the edge
                   name = stringr::str_c("conn-", refno),
                   id = stringr::str_c("edge-", refno), # create a unique id for the edge, based on the refno
-                  curvature = as.double(NA)) %>%
-    dplyr::select(name, refno, polarity, from, to, id, curvature)
+                  curvature = as.double(NA),
+                  description = as.character(NA),
+                  weight = 1) %>%
+    dplyr::select(name, refno, polarity, from, to, id, curvature, description, weight)
 
   list(nodes = nodes, edges = edges) # return the node and edge information
 }

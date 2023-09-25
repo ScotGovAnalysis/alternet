@@ -17,7 +17,9 @@ import_from_stella_xml = function(filepath, translation = c(200,0)) {
     dplyr::mutate(x = x - translation[1],
                   y = y - translation[2],
                   type = as.character(NA)) %>%
-    dplyr::select(name, refno, label, type, id, x, y)
+    dplyr::select(name, refno, label, type, id, x, y) %>%
+    dplyr::mutate(description = as.character(NA),
+                  tags = as.character(NA))
 
   edges = xml_data %>%
     get_edge_info_stella() %>%
@@ -28,7 +30,9 @@ import_from_stella_xml = function(filepath, translation = c(200,0)) {
                   curvature = as.double(NA)) %>%
     dplyr::select(name, refno, polarity, from, to, id, curvature) %>%
     dplyr::mutate(polarity = polarity %>%
-                    dplyr::recode(`+` = "positive", `-` = "negative"))
+                    dplyr::recode(`+` = "positive", `-` = "negative"),
+                  description = as.character(NA),
+                  weight = 1)
 
   list(nodes = nodes, edges = edges) # return the node and edge information
 }
