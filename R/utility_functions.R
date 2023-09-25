@@ -50,10 +50,30 @@ recode_by_dict = function(data, columns, old_key, new_key, dict) {
                     new_key = !!new_key)
 
     output = data %>%
-      dplyr::left_join(dict, by = structure(names = columns, .Data = "old_key")) %>% # add the ne_key information
+      dplyr::left_join(dict, by = structure(names = columns, .Data = "old_key")) %>% # add the new_key information
       dplyr::mutate(!!columns := new_key) %>% # recode the required column with new_key
       dplyr::select(-new_key) # remove new_key again
   }
 
   output
 }
+
+add_if_absent = function(data, columns) {
+  columns = setdiff(columns, names(data))
+
+  if(length(columns) > 1) {
+    output = columns %>%
+      purrr::reduce(add_if_absent, .init = data)
+  }
+
+  # otherwise, recode the column
+  if(length(columns) == 1) {
+    output = data %>%
+      dplyr::mutate(!!columns := NA)
+  }
+
+  if(length(columns) == 0) output = data
+
+  output
+}
+

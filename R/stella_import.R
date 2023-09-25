@@ -17,7 +17,17 @@ import_from_stella_xml = function(filepath, translation = c(200,0)) {
     dplyr::mutate(x = x - translation[1],
                   y = y - translation[2],
                   type = as.character(NA)) %>%
-    dplyr::select(name, refno, label, type, id, x, y)
+    dplyr::select(name, refno, label, type, id, x, y, font_colour) %>%
+    dplyr::mutate(description = as.character(NA),
+                  tags = as.character(NA))
+
+  node_styles = nodes %>%
+    dplyr::distinct(font_colour) %>%
+    dplyr::transmute(type = font_colour,
+                     font_colour,
+                     font_weight = NA)
+
+  nodes = nodes %>% dplyr::select(-font_colour)
 
   edges = xml_data %>%
     get_edge_info_stella() %>%
@@ -28,9 +38,11 @@ import_from_stella_xml = function(filepath, translation = c(200,0)) {
                   curvature = as.double(NA)) %>%
     dplyr::select(name, refno, polarity, from, to, id, curvature) %>%
     dplyr::mutate(polarity = polarity %>%
-                    dplyr::recode(`+` = "positive", `-` = "negative"))
+                    dplyr::recode(`+` = "positive", `-` = "negative"),
+                  description = as.character(NA),
+                  weight = 1)
 
-  list(nodes = nodes, edges = edges) # return the node and edge information
+  list(nodes = nodes, edges = edges, node_styles = node_styles) # return the node, edge and style information
 }
 
 #' Extracts node information from Decision Explorer xml (as created by xml2::read_xml())
@@ -38,13 +50,14 @@ import_from_stella_xml = function(filepath, translation = c(200,0)) {
 #' @param raw_xml xml document read from the model file
 
 #' @return A tibble containing information about nodes
-#' @examples xml2::read_xml("example_network.mdx") %>% get_node_info_de()
+#' @examples xml2::read_xml("example_network.mdx") %>% get_node_info_stella()
 get_node_info_stella = function(raw_xml) {
   nodes_xml = xml2::xml_find_all(raw_xml, ".//view/aux") # Navigate to the node elements
 
   nodes = tibble::tibble(label = xml2::xml_attr(nodes_xml, "name"),
                          x = xml2::xml_attr(nodes_xml, "x") %>% as.double(),
-                         y = xml2::xml_attr(nodes_xml, "y") %>% as.double()) %>%
+                         y = xml2::xml_attr(nodes_xml, "y") %>% as.double(),
+                         font_colour = xml2::xml_attr(nodes_xml, "font_color")) %>%
     dplyr::mutate(refno = seq_along(label))
 
   nodes
@@ -55,7 +68,7 @@ get_node_info_stella = function(raw_xml) {
 #' @param raw_xml xml document read from the model file
 
 #' @return A tibble containing information about edges
-#' @examples xml2::read_xml("example_network.mdx") %>% get_edge_info_de()
+#' @examples xml2::read_xml("example_network.mdx") %>% get_edge_info_stella()
 get_edge_info_stella = function(raw_xml) {
   edges_xml = xml2::xml_find_all(raw_xml, ".//connector") # Navigate to the edge elements
 

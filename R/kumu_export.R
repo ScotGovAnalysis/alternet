@@ -16,7 +16,7 @@ export_to_kumu = function(network, filepath = NULL, scaling = 2) {
     dplyr::mutate(polarity = polarity %>%
                      dplyr::recode(positive = "+", negative = "-")) # recode the polarity indicators to the kumu format
 
-  styles = network$styles # not currently used
+  node_styles = network$node_styles
 
   elements = nodes %>%
     dplyr::select(`_id` = name, id = refno, label, `element type` = type) %>%
@@ -30,9 +30,11 @@ export_to_kumu = function(network, filepath = NULL, scaling = 2) {
   maps = list(`_id` = "map_import", # _id for the map view is required
               name = "Imported_map", # name for the map view is required
               elements = nodes %>%
-                dplyr::select(`_id` = id, element = name, x, y) %>%
-                alternet:::nest_for_json(position = c(x,y)) %>% # restructure the data for conversion into json
-                dplyr::select(`_id`, position, element),
+                dplyr::left_join(node_styles, by = "type") %>%
+                dplyr::select(`_id` = id, element = name, x, y, fontColor = font_colour, fontWeight = font_weight) %>%
+                alternet:::nest_for_json(position = c(x, y),
+                                         style = c(fontColor, fontWeight)) %>% # restructure the data for conversion into json
+                dplyr::select(`_id`, position, style, element),
               connections = edges %>%
                 dplyr::select(`_id` = id, connection = name))
 
