@@ -16,5 +16,5 @@ A tibble containing information about edges
 Extracts edge information from Decision Explorer xml (as created by xml2::read_xml())
 }
 \examples{
-xml2::read_xml("example_network.mdx") \%>\% get_edge_info_de()
+xml2::read_xml("example_network.mdx") \%>\% get_edge_info_stella()
 }

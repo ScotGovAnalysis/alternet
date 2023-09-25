@@ -17,7 +17,7 @@ export_to_decision_explorer = function(network, filepath = NULL, scaling = 5) {
     # switch the from and to columns in edges to be based on refno rather than name
     recode_by_dict(c("from", "to"), "name", "refno", nodes)
 
-  styles = network$styles
+  node_styles = network$node_styles %>% hex_to_percent()
 
   # create xml document
   xml_doc = xml2::xml_new_root("model",
@@ -25,6 +25,19 @@ export_to_decision_explorer = function(network, filepath = NULL, scaling = 5) {
                                .encoding = 'ISO-8859-1')
 
   xml_doc %>% xml2::xml_add_child("info")
+
+  xml_doc %>% xml2::xml_add_child("conceptstyles")
+  # add each node as a concept
+  for(i in 1:nrow(nodes)) {
+    xml_doc %>%
+      xml2::xml_child("conceptstyles") %>%
+      xml2::xml_add_child("conceptstyle",
+                          bold = node_styles$font_weight[i] %>% tidyr::replace_na("0") %>% dplyr::recode(bold = "1"),
+                          name = node_styles$type[i] %>% tidyr::replace_na("standard"),
+                          redpercent = node_styles$red[i],
+                          greenpercent = node_styles$green[i],
+                          bluepercent = node_styles$blue[i])
+  }
 
   xml_doc %>% xml2::xml_add_child("concepts")
   # add each node as a concept
@@ -34,7 +47,7 @@ export_to_decision_explorer = function(network, filepath = NULL, scaling = 5) {
       xml2::xml_add_child("concept",
                           nodes$label[i],
                           id = nodes$refno[i],
-                          style = nodes$type[i])
+                          style = nodes$type[i] %>% tidyr::replace_na("standard"))
   }
 
   xml_doc %>% xml2::xml_add_child("links")
@@ -64,4 +77,14 @@ export_to_decision_explorer = function(network, filepath = NULL, scaling = 5) {
     xml2::write_xml(xml_doc, filepath)
   }
   xml_doc
+}
+
+hex_to_percent = function(node_styles) {
+  node_styles %>%
+    dplyr::mutate(rgb = font_colour %>%
+                    col2rgb() %>%
+                    t() %>%
+                    tibble::as_tibble()) %>%
+    tidyr::unnest(rgb) %>%
+    dplyr::mutate_at(c("red", "green", "blue"), ~round(./2.55, 1))
 }

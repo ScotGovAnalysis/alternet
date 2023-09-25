@@ -16,5 +16,5 @@ A tibble containing information about nodes
 Extracts node information from Decision Explorer xml (as created by xml2::read_xml())
 }
 \examples{
-xml2::read_xml("example_network.mdx") \%>\% get_node_info_de()
+xml2::read_xml("example_network.mdx") \%>\% get_node_info_stella()
 }

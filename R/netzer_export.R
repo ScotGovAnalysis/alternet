@@ -14,7 +14,7 @@ export_to_netzer = function(network, filepath = NULL) {
                      data_version =  1,
                      System = "System 1",
                      `Variable.ID` = name,
-                     `Section.on.Systems.Map` = "Sub-system 1",
+                     `Section.on.Systems.Map` = type %>% tidyr::replace_na("None"),
                      `Variable.Name` = label,
                      Description = description %>% tidyr::replace_na(" "),
                      Value = 1,

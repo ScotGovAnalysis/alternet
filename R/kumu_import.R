@@ -15,21 +15,25 @@ import_from_kumu_json = function(filepath, scaling = 2) {
     dplyr::left_join(json_data$maps$elements[[1]] %>% #join with map layout information
                        tidyr::unnest(cols = any_of(c("position", "style"))),
                      by = "element") %>%
+    add_if_absent(c("pinned", "fontColor", "fontWeight")) %>%
     dplyr::rename(name = element,
                   type = `element type`,
-                  id = `_id`) %>%
-    # rescale coordinates to keep layout nice
-    dplyr::mutate(x = x / scaling,
+                  id = `_id`,
+                  font_colour = fontColor,
+                  font_weight = fontWeight) %>%
+    dplyr::mutate(x = x / scaling, # rescale coordinates to keep layout nice
                   y = y / scaling,
                   description = as.character(NA),
                   tags = as.character(NA))
 
   # handling styles is something to tackle in future
-  # styles = nodes %>%
-  #   dplyr::distinct(type, font_colour, font_weight) # identify distinct groups by style
+  node_styles = nodes %>%
+    dplyr::mutate(type = type %>% dplyr::na_if("")) %>%
+    dplyr::distinct(type, .keep_all = TRUE) %>% # identify distinct groups by style
+    dplyr::select(type, font_colour, font_weight)
 
   nodes = nodes %>%
-    dplyr::select(-any_of(c("pinned", "fontColor", "fontWeight")))
+    dplyr::select(-pinned, -font_colour, -font_weight)
 
   edges = json_data$connections %>% # select the "connections" (or edges)
     tidyr::unnest(cols = c(attributes)) %>% # tidy the format of the columns
@@ -48,5 +52,5 @@ import_from_kumu_json = function(filepath, scaling = 2) {
                   description = as.character(NA),
                   weight = 1)
 
-  list(nodes = nodes, edges = edges) # return the node, edge and style information
+  list(nodes = nodes, edges = edges, node_styles = node_styles) # return the node, edge and style information
 }
