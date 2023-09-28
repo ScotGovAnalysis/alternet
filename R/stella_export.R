@@ -11,7 +11,8 @@ export_to_stella = function(network, filepath = NULL, translation = c(200,0)) {
   nodes = network$nodes %>%
     # rescale coordinates to keep layout nice
     dplyr::mutate(x = x + translation[1],
-                  y = y + translation[2])
+                  y = y + translation[2],
+                  label = label %>% fix_labels_stella())
 
   edges = network$edges %>%
     dplyr::rename(uid = refno) %>%
@@ -82,4 +83,10 @@ export_to_stella = function(network, filepath = NULL, translation = c(200,0)) {
     xml2::write_xml(xml_doc, filepath)
   }
   xml_doc
+}
+
+fix_labels_stella = function(labels) {
+  labels %>%
+    stringr::str_replace_all("\\.", " ") %>% # full stops break Stella for some reason
+    stringr::str_squish()
 }
