@@ -54,7 +54,8 @@ get_node_info_de = function(raw_xml) {
 
   layout = tibble::tibble(x = xml2::xml_attr(layout_xml, "x") %>% as.double(),
                           y = xml2::xml_attr(layout_xml, "y") %>% as.double(),
-                          refno = xml2::xml_attr(layout_xml, "concept") %>% as.integer())
+                          refno = xml2::xml_attr(layout_xml, "concept") %>% as.integer()) %>%
+    dplyr::distinct(refno, .keep_all = TRUE)
 
   nodes %>%
     dplyr::left_join(layout, by = "refno")
