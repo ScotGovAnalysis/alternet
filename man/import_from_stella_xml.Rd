@@ -4,12 +4,14 @@
 \alias{import_from_stella_xml}
 \title{Imports a Stella xml-formatted CLD as a network, converting to a standardised R format}
 \usage{
-import_from_stella_xml(filepath, translation = c(200, 0))
+import_from_stella_xml(filepath, translation = c(200, 0), model_type = "cld")
 }
 \arguments{
 \item{filepath}{The filepath of the Stella xml file}
 
 \item{translation}{Number to translate the coordinates down by}
+
+\item{model_type}{Specify "cld" to read from a CLD model with variables as nodes or "sf" to read from a stock and flow model with modules as nodes}
 }
 \value{
 A named list with a tibble containing information about nodes, and a tibble containing information about edges
