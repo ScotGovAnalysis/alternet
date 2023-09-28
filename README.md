@@ -15,8 +15,9 @@ Package to convert network diagrams between different formats.
 
 * Node name
 * Node position
-* Node type (excluding Stella)
+* Node type
 * Edge polarity
+* Styles for node types
 
 <br>
 
@@ -51,6 +52,8 @@ network %>% export_to_decision_explorer()
 ### Getting data from original software
 
 The import functions work directly on save files produced by Stella (".stmx") and Decision Explorer (".demx"). You can also use the files produced using the Decision Explorer export facility ("mdx").
+
+For Stella, you can either import from a causal loop diagram, in which case the variables will be interpreted as nodes, or from a stock and flow model, in which case the modules will be interpreted as nodes. See the documentation for import_from_stella_xml.
 
 For Kumu, see the documentation on exporting data as json, click the download icon in the lower right corner of the map and choose "Export to JSON".
 
