@@ -4,12 +4,10 @@
 \alias{get_edge_info_stella}
 \title{Extracts edge information from Stella xml CLD map (as created by xml2::read_xml())}
 \usage{
-get_edge_info_stella(raw_xml, model_type)
+get_edge_info_stella(raw_xml)
 }
 \arguments{
 \item{raw_xml}{xml document read from the model file}
-
-\item{model_type}{Specify "cld" to read from a CLD model with variables as nodes or "sf" to read from a stock and flow model with modules as nodes}
 }
 \value{
 A tibble containing information about edges

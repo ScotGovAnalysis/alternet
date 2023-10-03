@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xmile xmlns:isee="http://iseesystems.com/XMILE" xlmns="http://docs.oasis-open.org/xmile/ns/XMILE/v1.0">
+<xmile xmlns="http://docs.oasis-open.org/xmile/ns/XMILE/v1.0" xmlns:isee="http://iseesystems.com/XMILE" version="1.0">
   <isee:prefs layer="cld"/>
   <model>
     <variables>

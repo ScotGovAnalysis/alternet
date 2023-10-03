@@ -32,8 +32,9 @@ export_to_stella = function(network, filepath = NULL, translation = c(200,0)) {
   xml_doc = xml2::xml_new_root("xmile",
                                .version = '1.0',
                                .encoding = 'utf-8',
-                               xlmns="http://docs.oasis-open.org/xmile/ns/XMILE/v1.0",
-                               `xmlns:isee`="http://iseesystems.com/XMILE")
+                               xmlns="http://docs.oasis-open.org/xmile/ns/XMILE/v1.0",
+                               `xmlns:isee`="http://iseesystems.com/XMILE",
+                               version = "1.0")
 
   xml_doc %>% xml2::xml_add_child("isee:prefs", layer = "cld")
 
