@@ -79,9 +79,9 @@ get_edge_info_stella = function(raw_xml, model_type) {
 #' @return A tibble containing information about nodes
 #' @examples xml2::read_xml("example_network.stmx") %>% get_node_info_stella_cld()
 get_node_info_stella_cld = function(raw_xml) {
-  nodes_xml = xml2::xml_find_all(raw_xml, ".//view/aux") # Navigate to the node elements
+  nodes_xml = xml2::xml_find_all(raw_xml, ".//d1:view/d1:aux") # Navigate to the node elements
 
-  nodes = tibble::tibble(label = xml2::xml_attr(nodes_xml, "name"),
+  nodes = tibble::tibble(label = xml2::xml_attr(nodes_xml, "name") %>% clean_string(),
                          x = xml2::xml_attr(nodes_xml, "x") %>% as.double(),
                          y = xml2::xml_attr(nodes_xml, "y") %>% as.double(),
                          font_colour = xml2::xml_attr(nodes_xml, "font_color")) %>%
@@ -99,10 +99,10 @@ get_node_info_stella_cld = function(raw_xml) {
 #' @return A tibble containing information about edges
 #' @examples xml2::read_xml("example_network.stmx") %>% get_edge_info_stella_cld()
 get_edge_info_stella_cld = function(raw_xml) {
-  edges_xml = xml2::xml_find_all(raw_xml, ".//connector") # Navigate to the edge elements
+  edges_xml = xml2::xml_find_all(raw_xml, ".//d1:view/d1:connector") # Navigate to the edge elements
 
-  tibble::tibble(from = xml2::xml_child(edges_xml, "from") %>% xml2::xml_text(),
-                 to = xml2::xml_child(edges_xml, "to") %>% xml2::xml_text(),
+  tibble::tibble(from = xml2::xml_child(edges_xml, "d1:from") %>% xml2::xml_text() %>% clean_string(),
+                 to = xml2::xml_child(edges_xml, "d1:to") %>% xml2::xml_text() %>% clean_string(),
                  polarity = xml2::xml_attr(edges_xml, "polarity"))
 }
 
@@ -117,8 +117,7 @@ get_node_info_stella_sf = function(raw_xml) {
 
   x = xml2::xml_attr(nodes, "x") # Get the x position of the nodes
   y = xml2::xml_attr(nodes, "y") # Get the x position of the nodes
-  name = xml2::xml_attr(nodes, "name") # Get the names of the nodes
-  name = stringr::str_replace_all(name, "\\\\n", " ") # Remove new lines from the names
+  name = xml2::xml_attr(nodes, "name") %>% clean_string() # Get the names of the nodes
 
   font_colour = xml2::xml_attr(nodes, "font_color") # Get the x position of the nodes
   font_weight = xml2::xml_attr(nodes, "font_weight") # Get the x position of the nodes
@@ -153,10 +152,9 @@ get_edge_info_stella_sf = function(raw_xml) {
 #' @return A vector containing the from or to nodes
 #' @examples xml2::read_xml("example_network.stmx") %>% get_edge_node_sf("from")
 get_edge_node_sf = function(raw_xml, end) {
-  nodes = xml2::xml_find_all(raw_xml, paste0(".//d1:", end)) # Navigate to the from or to elements
-  nodes = xml2::xml_text(nodes) # Convert the elements to text
-  nodes = stringr::str_replace_all(nodes, "_", " ") # Convert underscores to spaces
-  stringr::str_remove_all(nodes, "\"") # Strip out extraneous quotation marks
+  nodes = xml2::xml_find_all(raw_xml, paste0(".//d1:", end)) %>% # Navigate to the from or to elements
+    xml2::xml_text() %>%  # Convert the elements to text
+    clean_string()
 }
 
 #' Extracts edge information from Stella xml stock and flow map (as created by xml2::read_xml())
@@ -168,4 +166,12 @@ get_edge_node_sf = function(raw_xml, end) {
 get_edge_polarity_sf = function(raw_xml) {
   edges = xml2::xml_find_all(raw_xml, ".//d1:connector[@uid]") # Get all the edges
   xml2::xml_attr(edges, "polarity") # Return the polarity values
+}
+
+clean_string = function(string) {
+  string %>%
+    stringr::str_remove_all("\"") %>%
+    stringr::str_replace_all("\\\\n", " ") %>%
+    stringr::str_replace_all("_", " ") %>%
+    stringr::str_squish()
 }
