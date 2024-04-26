@@ -27,8 +27,8 @@ export_to_netzer = function(network, filepath = NULL) {
                      insertdate = " ",
                      LiveData = 0,
                      Hidden = 0,
-                     x,
-                     y)
+                     x, # not required for netzer, but makes the initial layout more consistent
+                     y) # not required for netzer, but makes the initial layout more consistent
 
   edges = network$edges %>%
     dplyr::transmute(data_name = "Imported network",
@@ -38,7 +38,7 @@ export_to_netzer = function(network, filepath = NULL) {
                        dplyr::recode(positive = "Same", negative = "Opposite"), # recode the polarity indicators to the NetZer format
                      `Source.organisation` = " ",
                      `Justification...quantifiable` = description %>% tidyr::replace_na(" "),
-                     `Relationship.Strength` = weight %>% dplyr::recode(`1` = "Medium"),
+                     `Relationship.Strength` = weight %>% dplyr::recode(`0` = "Low", `1` = "Medium", `2` = "High"),
                      Weblink = " ")
 
   if(! filepath %>% is.null()) {
