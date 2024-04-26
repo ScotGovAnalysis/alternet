@@ -26,7 +26,9 @@ export_to_netzer = function(network, filepath = NULL) {
                      Additional.comments = " ",
                      insertdate = " ",
                      LiveData = 0,
-                     Hidden = 0)
+                     Hidden = 0,
+                     x,
+                     y)
 
   edges = network$edges %>%
     dplyr::transmute(data_name = "Imported network",
