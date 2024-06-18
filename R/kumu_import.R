@@ -7,15 +7,29 @@
 #' @examples import_from_kumu_json("inst/extdata/example_network.json", scaling = 2)
 #' @export
 import_from_kumu_json = function(filepath, scaling = 2) {
+
+
   json_data = jsonlite::fromJSON(filepath) # read the data into a list
 
   nodes = json_data$elements %>% # select the "elements" (or nodes)
-    tidyr::unnest(cols = c(attributes)) %>% # tidy the format of the columns
-    dplyr::rename(element = `_id`, refno = id) %>%
+    tidyr::unnest(cols = c(attributes)) # tidy the format of the columns
+
+  if(!"id" %in% nodes$cols){   #if "id" not in attributes, add id column
+    nodes <- nodes %>%
+      dplyr::mutate(id = dplyr::row_number())
+  }
+  if(!"element type" %in% nodes$cols){   #if "element type" not in attributes, add a constant string as type
+    nodes <- nodes %>%
+      dplyr::mutate("element type" = "type") #
+  }
+
+   nodes <- nodes %>%
+     dplyr::rename(element = `_id`, refno = id) %>%
     dplyr::left_join(json_data$maps$elements[[1]] %>% #join with map layout information
                        tidyr::unnest(cols = any_of(c("position", "style"))),
                      by = "element") %>%
-    add_if_absent(c("pinned", "fontColor", "fontWeight")) %>%
+    add_if_absent(c("pinned", "fontColor",
+                    "fontWeight", "element type")) %>%
     dplyr::rename(name = element,
                   type = `element type`,
                   id = `_id`,
@@ -36,7 +50,19 @@ import_from_kumu_json = function(filepath, scaling = 2) {
     dplyr::select(-pinned, -font_colour, -font_weight)
 
   edges = json_data$connections %>% # select the "connections" (or edges)
-    tidyr::unnest(cols = c(attributes)) %>% # tidy the format of the columns
+    tidyr::unnest(cols = c(attributes))  # tidy the format of the columns
+
+  if(!"id" %in% edges$cols){   #if "id" not in attributes, add id column
+    edges <- edges %>%
+      dplyr::mutate(id = dplyr::row_number())
+  }
+
+  if(!"connection type" %in% nodes$cols){   #if "connection type" not in attributes, add a "postive" as type
+    edges <- edges %>%
+      dplyr::mutate("connection type" = "positive") #
+  }
+
+  edges <- edges %>%
     dplyr::rename(connection = `_id`, refno = id) %>%
     dplyr::left_join(tibble::as_tibble(json_data$maps$connections[[1]]), #join with map layout information
                      by = "connection") %>%
