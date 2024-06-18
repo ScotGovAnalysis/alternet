@@ -14,11 +14,11 @@ import_from_kumu_json = function(filepath, scaling = 2) {
   nodes = json_data$elements %>% # select the "elements" (or nodes)
     tidyr::unnest(cols = c(attributes)) # tidy the format of the columns
 
-  if(!"id" %in% nodes$cols){   #if "id" not in attributes, add id column
+  if(!"id" %in% colnames(nodes)){   #if "id" not in attributes, add id column
     nodes <- nodes %>%
       dplyr::mutate(id = dplyr::row_number())
   }
-  if(!"element type" %in% nodes$cols){   #if "element type" not in attributes, add a constant string as type
+  if(!"element type" %in% colnames(nodes)){   #if "element type" not in attributes, add a constant string as type
     nodes <- nodes %>%
       dplyr::mutate("element type" = "type") #
   }
@@ -52,12 +52,12 @@ import_from_kumu_json = function(filepath, scaling = 2) {
   edges = json_data$connections %>% # select the "connections" (or edges)
     tidyr::unnest(cols = c(attributes))  # tidy the format of the columns
 
-  if(!"id" %in% edges$cols){   #if "id" not in attributes, add id column
+  if(!"id" %in% colnames(edges)){ #if "id" not in attributes, add id column
     edges <- edges %>%
       dplyr::mutate(id = dplyr::row_number())
   }
 
-  if(!"connection type" %in% nodes$cols){   #if "connection type" not in attributes, add a "postive" as type
+  if(!"connection type" %in% colnames(nodes)){   #if "connection type" not in attributes, add a "postive" as type
     edges <- edges %>%
       dplyr::mutate("connection type" = "positive") #
   }
