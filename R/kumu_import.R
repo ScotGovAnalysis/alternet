@@ -18,6 +18,7 @@ import_from_kumu_json = function(filepath, scaling = 2) {
     nodes <- nodes %>%
       dplyr::mutate(id = dplyr::row_number())
   }
+
   if(!"element type" %in% colnames(nodes)){   #if "element type" not in attributes, add a constant string as type
     nodes <- nodes %>%
       dplyr::mutate("element type" = "type") #
@@ -57,12 +58,11 @@ import_from_kumu_json = function(filepath, scaling = 2) {
       dplyr::mutate(id = dplyr::row_number())
   }
 
-  if(!"connection type" %in% colnames(nodes)){   #if "connection type" not in attributes, add a "postive" as type
+  if(!"connection type" %in% colnames(edges)){   #if "connection type" not in attributes, add a "postive" as type
     edges <- edges %>%
       dplyr::mutate("connection type" = "positive") #
   }
-
-  edges <- edges %>%
+  edges = edges %>%
     dplyr::rename(connection = `_id`, refno = id) %>%
     dplyr::left_join(tibble::as_tibble(json_data$maps$connections[[1]]), #join with map layout information
                      by = "connection") %>%
