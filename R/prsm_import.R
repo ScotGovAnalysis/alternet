@@ -44,3 +44,110 @@ import_from_prsm_xlsx = function(filepath, scaling = 2) {
 
   list(nodes = nodes, edges = edges, node_styles = node_styles) # return the node, edge and style information
 }
+
+#' Imports a PRSM gml-formatted model as a network, converting to a standardised R format
+#'
+#' @param filepath The filepath of the PRSM gml file
+
+#' @return A named list with a tibble containing information about nodes, and a tibble containing information about edges
+#' @examples import_from_prsm_gml("inst/extdata/example_network.gml")
+#' @export
+import_from_prsm_gml = function(filepath) {
+  gml_output = igraph::read_graph(filepath, format = "gml")
+
+  # handling styles is something to tackle in future
+  nodes = gml_output %>%
+    igraph::as_data_frame("vertices") %>%
+    dplyr::transmute(name = paste0("elem-", id+1),
+                     refno = id+1,
+                     label,
+                     type = color %>% as.factor() %>% as.integer() %>% as.character(),
+                     id = paste0("node-", id),
+                     x = as.double(NA),
+                     y = as.double(NA),
+                     description = as.character(NA),
+                     tags = as.character(NA),
+                     font_colour = color)
+
+  node_styles = nodes %>%
+    dplyr::distinct(type, font_colour) %>%
+    dplyr::mutate(font_colour = font_colour %>% gml_colour(),
+                  font_weight = as.character(NA))
+
+  nodes = nodes %>%
+    dplyr::select(-font_colour)
+
+  edges = gml_output %>%
+    igraph::as_data_frame("edges") %>%
+    dplyr::transmute(name = paste0("conn-", 1:nrow(.)),
+                     refno = 1:nrow(.),
+                     polarity = color %>%
+                       dplyr::recode(`rgb(0, 0, 255)` = "positive",
+                                     `rgb(255, 0, 0)` = "negative",
+                                     .default = "unclear"),
+                     from, to,
+                     id = paste0("edge-", refno),
+                     curvature = as.double(NA), # handling curvature is something to tackle in future
+                     description = as.character(NA),
+                     weight = 1) %>%
+    recode_by_dict(c("from", "to"), "refno", "name", nodes)
+
+  list(nodes = nodes, edges = edges, node_styles = node_styles) # return the node, edge and style information
+}
+
+#' Imports a PRSM gml-formatted model as a network, converting to a standardised R format
+#'
+#' @param filepath The filepath of the PRSM gml file
+
+#' @return A named list with a tibble containing information about nodes, and a tibble containing information about edges
+#' @examples import_from_prsm_gml("inst/extdata/example_network.gml")
+#' @export
+import_from_prsm_gv = function(filepath) {
+  gml_output = igraph::read_graph(filepath, format = "gml")
+
+  # handling styles is something to tackle in future
+  nodes = gml_output %>%
+    igraph::as_data_frame("vertices") %>%
+    dplyr::transmute(name = paste0("elem-", id+1),
+                     refno = id+1,
+                     label,
+                     type = color %>% as.factor() %>% as.integer() %>% as.character(),
+                     id = paste0("node-", id),
+                     x = as.double(NA),
+                     y = as.double(NA),
+                     description = as.character(NA),
+                     tags = as.character(NA),
+                     font_colour = color)
+
+  node_styles = nodes %>%
+    dplyr::distinct(type, font_colour) %>%
+    dplyr::mutate(font_colour = font_colour %>% gml_colour(),
+                  font_weight = as.character(NA))
+
+  nodes = nodes %>%
+    dplyr::select(-font_colour)
+
+  edges = gml_output %>%
+    igraph::as_data_frame("edges") %>%
+    dplyr::transmute(name = paste0("conn-", 1:nrow(.)),
+                     refno = 1:nrow(.),
+                     polarity = color %>%
+                       dplyr::recode(`rgb(0, 0, 255)` = "positive",
+                                     `rgb(255, 0, 0)` = "negative",
+                                     .default = "unclear"),
+                     from, to,
+                     id = paste0("edge-", refno),
+                     curvature = as.double(NA), # handling curvature is something to tackle in future
+                     description = as.character(NA),
+                     weight = 1) %>%
+    recode_by_dict(c("from", "to"), "refno", "name", nodes)
+
+  list(nodes = nodes, edges = edges, node_styles = node_styles) # return the node, edge and style information
+}
+
+gml_colour = function(colour_strings) {
+  colour_strings %>%
+    stringr::str_extract_all("\\d+") %>%
+    purrr::map(~as.integer(.)/255) %>%
+    purrr::map(~rgb(.[1], .[2], .[3]))
+}
